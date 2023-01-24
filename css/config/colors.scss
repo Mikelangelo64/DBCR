@@ -1,10 +1,14 @@
 $colors: (
-    'text-secondary': #FFFFFF,
-    'text-primary': #262729,
-    'bg-primary': #F6F6F6,
-    'bg-secondary': #212224,
-    'button': #FB2740,
-    'button-active': #CF1C31,
+    'blue-100': #3E5273,
+    'blue-200': #263856,
+    'blue-300': #202945,
+    'blue-400': #14192B,
+    'blue-500': #161928,
+    'white': #FFFFFF,
+    'grey-100': #F0F0F0,
+    'grey-200': #666666,
+    'gold-100': #CBAB82,
+    'gold-200': #BC9C56,
 );
 
 
@@ -20,6 +24,6 @@ $colors: (
 }
 
 html {
-    background-color: var(--color-bg-primary);
-    color: var(--color-text-primary);
+    background-color: var(--color-white);
+    color: var(--color-blue-400);
 }

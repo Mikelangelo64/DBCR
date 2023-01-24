@@ -34,64 +34,23 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   if (isMobile.any()) {
-    document.querySelector('body').classList.add('_touch');
-    document.body.style.setProperty('--mobile', `none`);
+    document.querySelector('body').classList.add('v-mobile');
+    document.querySelector('html').classList.add('v-mobile');
   } else {
-    document.querySelector('body').classList.add('_pc');
-    document.body.style.setProperty('--mobile', `block`);
-  }
-
-  //lines bg move
-
-  const makeTimelineLines = (item, height) => {
-    const timeline = gsap.timeline({ repeat: -1, defaults: { ease: 'none' } });
-
-    timeline
-      .from(item, {
-        x: '-50%',
-        y: -20,
-      })
-      .to(item, {
-        x: '-50%',
-        y: height + 20,
-        duration: 5 + Math.random() * 6,
-      });
-
-    return timeline;
-  };
-
-  const linesArr = document.querySelectorAll('.lines');
-
-  if (linesArr.length !== 0) {
-    linesArr.forEach((linesNode) => {
-      const height = linesNode.getBoundingClientRect().height;
-
-      //for each lines element
-      const lines = linesNode.querySelectorAll('.lines-line');
-      if (linesArr.length !== 0) {
-        lines.forEach((line) => {
-          //for each line in every lines
-          const item = line.querySelector('.lines-line__item');
-
-          if (!item) {
-            return;
-          }
-
-          // item.style.transform = `translate3d(-50%, ${Math.floor(
-          //   Math.random() * (height + 1) + 0
-          // )}px, 0)`;
-          item.style.opacity = '1';
-
-          const timeline = makeTimelineLines(item, height);
-          timeline.play(5 + Math.random() * 6);
-        });
-      }
-    });
+    document.querySelector('body').classList.add('v-desktop');
+    document.querySelector('html').classList.add('v-desktop');
   }
 
   //normal vh
   const vh = window.innerHeight * 0.01;
   document.body.style.setProperty('--vh', `${vh}px`);
+
+  //header height
+  const headerHeight = document.querySelector('.header');
+  document.body.style.setProperty(
+    '--header',
+    `${headerHeight ? headerHeight.getBoundingClientRect().height : 100}px`
+  );
 
   // menu global open
   const doWhenMenuOpen = () => {
@@ -249,14 +208,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  //WHEEL ROTATE
-  const wheel = document.querySelector('._wheel img');
-  //let progress = 0
-  let progress = {
-    current: 0,
-    target: 0,
-  };
-
   function lerp(current, target, ease, approximationLeft = 0.001) {
     const val = current * (1 - ease) + target * ease;
     const diff = Math.abs(target - val);
@@ -264,261 +215,6 @@ document.addEventListener('DOMContentLoaded', function () {
       return target;
     }
     return val;
-  }
-
-  let idAnimation = null;
-
-  function stopAnimation(idAnimation) {
-    cancelAnimationFrame(idAnimation);
-  }
-
-  let lastScroll = window.scrollY;
-
-  const wheelRotate = (delta, isFirstStep = false) => {
-    if (!wheel) {
-      return;
-    }
-    if (isMobile.any()) {
-      wheel.style.transform = '';
-      return;
-    }
-
-    if (isFirstStep) {
-      progress.target += delta;
-    }
-
-    progress.current = lerp(progress.current, progress.target, 0.15, 0.001);
-    wheel.style.transform = `rotate(${progress.current}deg)`;
-
-    if (progress.current === progress.target) {
-      stopAnimation(idAnimation);
-      //}
-    } else {
-      wheelRotate(progress.target);
-    }
-  };
-
-  addEventListener('scroll', (evt) => {
-    if (isMobile.any() || !wheel) {
-      return;
-    }
-
-    const wheelSection = wheel.parentElement.parentElement;
-    const wheelSectionRect = wheelSection.getBoundingClientRect();
-    const wheelSectionHeight = wheelSectionRect.height;
-
-    const y = Math.min(
-      Math.max(
-        (-wheelSectionRect.top + window.innerHeight / 2) /
-          (wheelSectionHeight * 1.2),
-        0
-      ),
-      1
-    );
-
-    if (y === 0 || y === 1) {
-      return;
-    }
-
-    const delta = window.scrollY - lastScroll;
-    lastScroll = window.scrollY;
-
-    idAnimation = window.requestAnimationFrame(() => {
-      wheelRotate((delta / 360) * 50, true);
-    });
-  });
-
-  //recording car move
-  const recordingSection = document.querySelector('.recording');
-  let progressCar = {
-    current: 0,
-    target: 0,
-  };
-  let recordingCar;
-  let idAnimationRecording = null;
-
-  if (recordingSection) {
-    recordingCar = recordingSection.querySelector('.recording__img img');
-  }
-
-  const carMove = (target) => {
-    if (!recordingCar || !recordingSection) {
-      return;
-    }
-    if (isMobile.any()) {
-      recordingCar.style.transform = '';
-      return;
-    }
-    progressCar.target = target;
-    progressCar.current = lerp(
-      progressCar.current,
-      progressCar.target,
-      0.15,
-      0.001
-    );
-
-    recordingCar.style.transform = `translateX(${
-      25 - progressCar.current * 100 * 0.25
-    }%)`;
-
-    if (progressCar.current === progressCar.target) {
-      stopAnimation(idAnimationRecording);
-    } else {
-      carMove(progressCar.target);
-    }
-  };
-
-  addEventListener('scroll', (evt) => {
-    if (isMobile.any() || !recordingSection) {
-      return;
-    }
-
-    const rect = recordingSection.getBoundingClientRect();
-    const startY = -1 * (rect.top - window.innerHeight / 2);
-    const y = Math.min(Math.max(startY, 0), rect.height);
-
-    idAnimationRecording = window.requestAnimationFrame(() => {
-      carMove(y / rect.height);
-    });
-  });
-
-  //with-image sections parallax
-  const withImageSections = document.querySelectorAll('.with-image');
-  const startProgress = {
-    current: 0,
-    target: 0,
-  };
-  const progresses = [];
-  let idImageAnimations = [];
-
-  const withImageAnimate = (target, image, content, index) => {
-    if (!image || !content) {
-      return;
-    }
-    if (isMobile.any()) {
-      image.style.transform = '';
-      content.style.transform = '';
-    }
-
-    progresses[index].target = target;
-    progresses[index].current = lerp(
-      progresses[index].current,
-      progresses[index].target,
-      0.15,
-      0.001
-    );
-
-    //console.log(progresses[0].current * 100);
-    image.style.transform = `translateY(${-progresses[index].current * 10}%)`;
-    // content.style.transform = `translateY(${-progresses[index].current}px)`;
-
-    if (progresses[index].current === progresses[index].target) {
-      stopAnimation(idImageAnimations[index]);
-    } else {
-      withImageAnimate(progresses[index].target, image, content, index);
-    }
-  };
-
-  if (withImageSections && !isMobile.any()) {
-    Array.from(withImageSections).forEach((section, index) => {
-      progresses.push(startProgress);
-
-      const image = section.querySelector('.with-image__img');
-      const content = section.querySelector('.with-image__main');
-
-      if (image.classList.contains('_static')) {
-        return;
-      }
-
-      this.addEventListener('scroll', (evt) => {
-        const rect = section.getBoundingClientRect();
-        const startY = -1 * (rect.top - window.innerHeight / 2);
-        const y = Math.min(Math.max(startY, 0), rect.height);
-
-        const idAnimation = window.requestAnimationFrame(() => {
-          withImageAnimate(y / rect.height, image, content, index);
-        });
-
-        idImageAnimations.push(idAnimation);
-      });
-    });
-  }
-
-  //price carKey animation
-  const priceSection = document.querySelector('.price');
-  const progressPrice = {
-    currentX: 0,
-    targetX: 0,
-    currentY: 0,
-    targetY: 0,
-  };
-  let priceImg;
-  let idAnimationPrice = null;
-
-  const priceImgMove = (targetX, targetY) => {
-    if (!priceImg || !priceSection) {
-      return;
-    }
-    if (isMobile.any()) {
-      priceImg.style.transform = '';
-      return;
-    }
-    const imgWidth = priceImg.getBoundingClientRect().width;
-    const imgHeight = priceImg.getBoundingClientRect().height;
-
-    progressPrice.targetX = targetX;
-    progressPrice.targetY = targetY;
-
-    progressPrice.currentX = lerp(
-      progressPrice.currentX,
-      progressPrice.targetX,
-      0.15,
-      0.01
-    );
-
-    progressPrice.currentY = lerp(
-      progressPrice.currentY,
-      progressPrice.targetY,
-      0.15,
-      0.01
-    );
-
-    priceImg.style.transform = `translate3d(${-progressPrice.currentX * 10}%, ${
-      -progressPrice.currentY * 10
-    }%, 0)`;
-
-    if (
-      priceImg.currentX === priceImg.targetX &&
-      priceImg.currentY === priceImg.targetY
-    ) {
-      stopAnimation(idAnimationPrice);
-    } else {
-      priceImgMove(progressPrice.targetX, progressPrice.targetY);
-    }
-  };
-
-  if (priceSection) {
-    priceImg = priceSection.querySelector('.price__img__bg img');
-
-    priceSection.addEventListener('mousemove', (evt) => {
-      if (!priceImg || isMobile.any()) {
-        return;
-      }
-      const rect = priceSection.getBoundingClientRect();
-      const startY = rect.top;
-      const startX = rect.left;
-
-      const y =
-        Math.min(Math.max(evt.clientY - startY, 0), rect.height) /
-        (rect.height * 2);
-      const x =
-        Math.min(Math.max(evt.clientX - startX, 0), rect.width) /
-        (rect.width * 2);
-
-      idAnimationPrice = window.requestAnimationFrame(() => {
-        priceImgMove(x, y);
-      });
-    });
   }
 
   //FAQ
@@ -692,60 +388,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
     });
-  }
-
-  //consultation car parking animation
-  const consultationSection = document.querySelector('.consultation');
-  let consultationCar = null;
-
-  const makeTimelineParking = (item) => {
-    const timeline = gsap.timeline({
-      repeat: -1,
-      yoyo: true,
-      defaults: { duration: 3, ease: 'power4.inOut' },
-    });
-    timeline.to(item, { x: 20, y: -50, rotation: -10 });
-    timeline.to(item, { x: 20, y: 40, rotation: -35, duration: 4.5 });
-    timeline.to(item, { x: -10, y: -50, rotation: -35 });
-    timeline.to(item, { x: 0, y: 25, rotation: -15 });
-    timeline.to(item, { x: 0, y: 0, rotation: 0 });
-    // timeline.to(item, { y: 50 });
-
-    return timeline;
-  };
-
-  if (consultationSection) {
-    consultationCar = consultationSection.querySelector(
-      '.consultation__img img'
-    );
-
-    if (!isMobile.any()) {
-      const timeline = makeTimelineParking(consultationCar);
-
-      window.addEventListener('scroll', () => {
-        const sectionRect = consultationSection.getBoundingClientRect();
-        const sectionHeight = sectionRect.height;
-
-        let isAnimationPlay = false;
-
-        const y = Math.min(
-          Math.max(
-            (-sectionRect.top + window.innerHeight / 2) / (sectionHeight * 1.2),
-            0
-          ),
-          1
-        );
-
-        if (y > 0 && y < 1 && !isAnimationPlay) {
-          timeline.play();
-          isAnimationPlay = true;
-          return;
-        }
-
-        timeline.pause();
-        isAnimationPlay = false;
-      });
-    }
   }
 
   //comments hardcode
@@ -998,16 +640,16 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   //swipers
-  let swiperBrands = new Swiper('.brands-swiper.swiper', {
-    autoplay: {
-      delay: 4500,
-      disableOnInteraction: false,
-    },
-    loopedSlides: 5,
+  let swiperPractics = new Swiper('.practics-slider.swiper', {
+    // autoplay: {
+    //   delay: 4500,
+    //   disableOnInteraction: false,
+    // },
+    // loopedSlides: 5,
     loop: true,
     navigation: {
-      nextEl: '.brands__slider__container .swiper-button-next',
-      prevEl: '.brands__slider__container .swiper-button-prev',
+      nextEl: '.practics__content .practics-slider__next',
+      prevEl: '.practics__content .practics-slider__prev',
     },
     slidesPerView: 1,
     spaceBetween: 10,
@@ -1019,72 +661,12 @@ document.addEventListener('DOMContentLoaded', function () {
       },
       899: {
         slidesPerView: 3,
-        spaceBetween: 15,
+        spaceBetween: 20,
       },
       1199: {
-        slidesPerView: 4,
-        spaceBetween: 26,
+        slidesPerView: 3,
+        spaceBetween: 40,
       },
     },
-  });
-
-  let swiperComments = new Swiper('.comments-slider.swiper', {
-    autoplay: {
-      delay: 4500,
-      disableOnInteraction: false,
-    },
-    pagination: {
-      el: '.comments__pagination__container',
-      clickable: true,
-    },
-    navigation: {
-      nextEl: '.comments__slider__container .swiper-button-next',
-      prevEl: '.comments__slider__container .swiper-button-prev',
-    },
-    // autoHeight: true,
-    loopedSlides: 5,
-    loop: true,
-    slidesPerView: 1,
-    spaceBetween: 97,
-
-    breakpoints: {
-      768: {
-        spaceBetween: 97,
-      },
-      899: {
-        spaceBetween: 97,
-      },
-      1199: {
-        spaceBetween: 97,
-      },
-    },
-  });
-
-  let swiperGallery = new Swiper('.gallery-slider.swiper', {
-    autoplay: {
-      delay: 4500,
-      disableOnInteraction: false,
-    },
-    navigation: {
-      nextEl: '.gallery__slider__container .swiper-button-next',
-      prevEl: '.gallery__slider__container .swiper-button-prev',
-    },
-    //autoHeight: true,
-    loopedSlides: 5,
-    loop: true,
-    slidesPerView: 1,
-    spaceBetween: 24,
-
-    // breakpoints: {
-    //   768: {
-    //     spaceBetween: 24,
-    //   },
-    //   899: {
-    //     spaceBetween: 24,
-    //   },
-    //   1199: {
-    //     spaceBetween: 24,
-    //   },
-    // },
   });
 });

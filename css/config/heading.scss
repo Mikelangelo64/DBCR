@@ -1,0 +1,105 @@
+@mixin text-heading-styles {
+    margin: 0;
+    font-family: $font-family-title;
+    font-weight: 600;
+    line-height: 130%;
+    text-transform: uppercase;
+}
+
+@mixin text-heading-1 {
+    @include text-heading-styles;
+    font-family: $font-family-banner;
+    letter-spacing: 0.12em;
+
+    @include viewport-desktop {
+        font-size: px-to-rem(96);
+    }
+    @include viewport-tablet {
+        font-size: px-to-rem(80);
+    }
+    @include viewport-phone {
+        font-size: px-to-rem(48);
+        line-height: 120%;
+        letter-spacing: 0.06em;
+    }
+}
+
+@mixin text-heading-2 {
+    @include text-heading-styles;
+    letter-spacing: 0.05em;
+    line-height: 120%;
+
+    @include viewport-desktop {
+        font-size: px-to-rem(60);
+    }
+    @include viewport-tablet {
+        font-size: px-to-rem(40);
+    }
+    @include viewport-phone {
+        font-size: px-to-rem(28);
+    }
+
+    span {
+        color: var(--color-gold-100);
+    }
+}
+
+@mixin text-heading-3 {
+    @include text-heading-styles;
+    font-family: $font-family;
+    text-transform: unset;
+
+    @include viewport-desktop {
+        font-size: px-to-rem(20);
+    }
+    @include viewport-tablet {
+        font-size: px-to-rem(20);
+    }
+    @include viewport-phone {
+        font-size: px-to-rem(20);
+    }
+}
+
+@mixin text-heading-4 {
+    @include text-heading-styles;
+    font-family: $font-family;
+    font-weight: 500;
+
+    @include viewport-desktop {
+        font-size: px-to-rem(18);
+    }
+    @include viewport-tablet {
+        font-size: px-to-rem(16);
+    }
+    @include viewport-phone {
+        font-size: px-to-rem(16);
+    }
+}
+
+@mixin text-heading-5 {
+    @include text-heading-styles;
+
+    @include viewport-desktop {
+        font-size: px-to-rem(14);
+    }
+    @include viewport-tablet {
+        font-size: px-to-rem(14);
+    }
+    @include viewport-phone {
+        font-size: px-to-rem(14);
+    }
+}
+
+@mixin text-heading-6 {
+    @include text-heading-styles;
+
+    @include viewport-desktop {
+        font-size: px-to-rem(12);
+    }
+    @include viewport-tablet {
+        font-size: px-to-rem(12);
+    }
+    @include viewport-phone {
+        font-size: px-to-rem(12);
+    }
+}

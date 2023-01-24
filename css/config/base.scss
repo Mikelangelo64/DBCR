@@ -2,7 +2,14 @@
 @import './settings';
 @import './viewport';
 @import './wrap';
+@import './heading.scss';
 @import './font-size.scss';
+@import './states.scss';
+@import './device.scss';
+
+:root {
+    --logo: #{px-to-rem(140)};
+}
 
 *{
     -webkit-tap-highlight-color: transparent;
@@ -37,177 +44,260 @@ body{
     overflow-x: hidden;
     height: unset !important;
 
-    font-weight: 400;
-    font-size: px-to-rem(16);
-    line-height: 160%;
-    color: var(--color-text-primary);
-    background-color: var(--color-bg-primary);
+    font-weight: 300;
+    font-size: px-to-rem(14);
+    line-height: 180%;
+    color: var(--color-blue-400);
+    background-color: var(--color-white);
 
     &._lock, &._lock__pop{
         overflow: hidden;
     }
 }
 
-@mixin text-heading-styles {
-    margin: 0;
-    font-family: $font-family;
-    font-weight: normal;
-    line-height: 130%;
-}
-
-@mixin text-heading-1 {
-    @include text-heading-styles;
-    font-weight: 700;
-
-    @include viewport-desktop {
-        font-size: px-to-rem(48);
+@keyframes animate-gradient {
+    0% {
+        background-position: 0%;
     }
-    @include viewport-tablet {
-        font-size: px-to-rem(41);
-    }
-    @include viewport-phone {
-        font-size: px-to-rem(34);
-        line-height: 120%;
-    }
-}
-
-@mixin text-heading-2 {
-    @include text-heading-styles;
-    font-weight: 700;
-
-    @include viewport-desktop {
-        font-size: px-to-rem(32);
-    }
-    @include viewport-tablet {
-        font-size: px-to-rem(30);
-    }
-    @include viewport-phone {
-        font-size: px-to-rem(28);
-    }
-}
-
-@mixin text-heading-3 {
-    @include text-heading-styles;
-    font-weight: 700;
-
-    @include viewport-desktop {
-        font-size: px-to-rem(24);
-    }
-    @include viewport-tablet {
-        font-size: px-to-rem(22);
-    }
-    @include viewport-phone {
-        font-size: px-to-rem(20);
-    }
-}
-
-@mixin text-heading-4 {
-    @include text-heading-styles;
-    font-weight: 600;
-
-    @include viewport-desktop {
-        font-size: px-to-rem(16);
-    }
-    @include viewport-tablet {
-        font-size: px-to-rem(16);
-    }
-    @include viewport-phone {
-        font-size: px-to-rem(16);
-    }
-}
-
-@mixin text-heading-5 {
-    @include text-heading-styles;
-    font-weight: 600;
-
-    @include viewport-desktop {
-        font-size: px-to-rem(14);
-    }
-    @include viewport-tablet {
-        font-size: px-to-rem(14);
-    }
-    @include viewport-phone {
-        font-size: px-to-rem(14);
-    }
-}
-
-@mixin text-heading-6 {
-    @include text-heading-styles;
-    font-weight: 600;
-
-    @include viewport-desktop {
-        font-size: px-to-rem(12);
-    }
-    @include viewport-tablet {
-        font-size: px-to-rem(12);
-    }
-    @include viewport-phone {
-        font-size: px-to-rem(12);
+    100% {
+        background-position: 400%;
     }
 }
 
 @mixin button { 
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     border: 0;
-    border-radius: px-to-rem(50);
+    border-radius: px-to-rem(5);
+    text-align: center;
+}
+
+@mixin button-gold {
+    position: relative;
+    z-index: 0;
+
+    text-transform: uppercase;
     font-size: px-to-rem(14);
     line-height: px-to-rem(17);
-    font-weight: 600;
-    padding: px-to-rem(15) px-to-rem(40);
-    color: var(--color-text-secondary);
+    font-weight: 500;
+    letter-spacing: 0.1em;
 
+    color: var(--color-blue-400);
+
+    //background-image: linear-gradient(87.59deg, #CBAB82 0%, #CBAB82 41.15%, #F1E1AD 59.44%, #CBAB82 100%);
+    //background-color: red;
+
+    &::before {
+        position: absolute;
+        top: 0;
+        left: 0;
+        // right: -2px;
+        // bottom: -2px;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+
+        padding: px-to-rem(7) px-to-rem(9);
+        background-image: linear-gradient(87.59deg, #CBAB82 0%, #CBAB82 41.15%, #F1E1AD 59.44%, #CBAB82 100%);
+        background-size: 200%;
+
+        opacity: 0;
+        filter: blur(13px);
+        border-radius: px-to-rem(5);
+        transition: opacity 0.3s ease;
+
+        @include non-mobile-device {
+            content: '';
+        }
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: calc(100% - 8px);
+        height: calc(100% - 8px);
+
+        border-radius: px-to-rem(3);
+        border: 1px solid rgba(var(--color-white--rgb), 0.4);
+    }
+
+    span {
+        position: relative;
+        z-index: 0;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: px-to-rem(22) px-to-rem(28);
+        border-radius: px-to-rem(5);
+
+        background-image: linear-gradient(87.59deg, #CBAB82 0%, #CBAB82 41.15%, #F1E1AD 59.44%, #CBAB82 100%);
+        background-size: 100%;
+        transition: background 0.3s ease;
+
+        @include non-mobile-device {
+            animation: animate-gradient 8s linear infinite reverse;
+            background-size: 200%;
+        }
+    }
+
+    @include non-mobile-hover {
+        &::before {
+            opacity: 1;
+            animation: animate-gradient 8s linear infinite;
+        }
+
+        span {
+            animation: animate-gradient 8s linear infinite;
+            background-size: 200%;
+        }
+    }
+
+    &:focus-visible {
+        &::before {
+            opacity: 1;
+            animation: animate-gradient 8s linear infinite;
+        }
+
+        span {
+            animation: animate-gradient 8s linear infinite;
+            background-size: 400%;
+        }
+    }
+}
+
+@mixin button-blue {
+    color: var(--color-blue-100);
+
+    &::before {
+        border: 1px solid rgba(var(--color-blue-100--rgb), 0.4);
+    }
+    &::after {
+        background-color: var(--color-blue-100);
+    }
+    span {
+        color: var(--color-blue-100);
+    }
+
+    @include non-mobile-hover {
+        span {
+            color: var(--color-white);
+        }
+    }
+
+    &:focus-visible {
+        span {
+            color: var(--color-white);
+        }
+    } 
+}
+
+@mixin button-white {
+    color: var(--color-white);
+
+    &::before {
+        border: 1px solid rgba(var(--color-blue-100--rgb), 1);
+    }
+    &::after {
+        background-color: var(--color-white);
+    }
+    span {
+        color: var(--color-white);
+    }
+
+    @include non-mobile-hover {
+        span {
+            color: var(--color-blue-100);
+        }
+    }
+
+    &:focus-visible {
+        span {
+            color: var(--color-blue-100);
+        }
+    } 
 }
 
 @mixin button-normal {
     position: relative;
     z-index: 0;
-    max-width: px-to-rem(180);
-    width: 100%;
+    // max-width: px-to-rem(180);
+    // width: 100%;
+    padding: px-to-rem(9) px-to-rem(20);
+    background-color: transparent;
+    
+    overflow: hidden;
     transition: background 0.3s ease;
-    background-color: var(--color-button);
+    
+    font-size: px-to-rem(16);
+    line-height: px-to-rem(19);
+    font-weight: 400;
 
     &::before {
         content: '';
         position: absolute;
         top: 0;
         left: 0;
+        z-index: 0;
         width: 100%;
         height: 100%;
-        z-index: -2;
-        background: rgba(var(--color-text-secondary--rgb), 0.42);
-        opacity: 0.2;
-        filter: blur(13px);
-        border-radius: px-to-rem(50);
+
+        border: 1px solid rgba(var(--color-blue-100--rgb), 0.4);
+        border-radius: px-to-rem(5);
         transition: opacity 0.3s ease;
-        padding: px-to-rem(7) px-to-rem(9);
     }
+
     &::after {
         content: '';
         position: absolute;
         top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        background: var(--color-button-active);
-        border-radius: px-to-rem(50);
+        left: -1px;
+        width: 101%;
+        height: 101%;
+        z-index: 1;
+        background-color: var(--color-blue-100);
+        border-radius: px-to-rem(5);
 
-        transform: scaleX(0);
+        transform: translateY(100%);
         transition: transform 0.3s ease;
         transform-origin: 50% 0;
     }
 
-    &:hover,
-    &:focus-visible {
+    span {
+        position: relative;
+        z-index: 2;
+        transition: color 0.3s ease;
+        color: var(--color-blue-100);
+    }
 
+    @include non-mobile-hover {
         &::before {
             opacity: 0;
         }
+
         &::after {
-            transform: scaleX(1);
-            //background-color: var(--color-button-active);
+            transform: translateY(0);
+        }
+
+        span {
+            color: var(--color-white);
+        }
+    }
+
+    &:focus-visible {
+        &::before {
+            opacity: 0;
+        }
+
+        &::after {
+            transform: translateY(0);
+        }
+
+        span {
+            color: var(--color-white);
         }
     }          
 }
@@ -218,26 +308,30 @@ body{
     border-radius: 0;
     -webkit-border-radius: 0;
     -webkit-appearance: none;
-    border-bottom: 1px solid var(--color-text-secondary);
+    border-bottom: 1px solid rgba(var(--color-white--rgb), 0.46);
     background-color: transparent;
     padding: unset;
     padding-top: 3px;
-    padding-bottom: 6px;
+    padding-bottom: 15px;
 
     transition: border 0.3s ease;
 
-    font-weight: 500;
+    font-weight: 400;
     font-size: px-to-rem(14);
-    color: var(--color-text-secondary);
+    color: var(--color-white);
 
     &::placeholder {
         font-weight: 500;
         font-size: px-to-rem(14);
-        color: var(--color-text-secondary);
+        color: rgba(var(--color-white--rgb), 0.51);
+    }
+
+    &:focus-visible {
+        border-color: var(--color-white);
     }
 
     @at-root label.incorrect input {
-        border-color: var(--color-button);
+        border-color: var(--color-gold-100);
     }
 }
 
@@ -246,7 +340,11 @@ body{
     margin: 0 auto;
 
     @include viewport-desktop {
-        max-width: 1140px;
+        max-width: 1252px;
+
+        @media (max-width: 1400px) {
+            max-width: 90%;
+        }
     }
     @include viewport-tablet {
         max-width: 90%;
@@ -258,7 +356,7 @@ body{
 
 .custom-logo-link {
     display: block;
-    max-width: px-to-rem(105);
+    max-width: var(--logo);
     width: 100%;
     cursor: pointer;
 
@@ -279,14 +377,14 @@ body{
     border-radius: 0;
     -webkit-border-radius: 0;
     -webkit-appearance: none;
-    border-bottom: 1px solid var(--color-text-secondary);
+    border-bottom: 1px solid var(--color-white);
 
     transform: unset !important;
 
     font-family: $font-family;
     font-size: px-to-rem(14);
     font-weight: 500;
-    color: var(--color-text-secondary);
+    color: var(--color-white);
 
     select {
         display: none;
@@ -300,8 +398,8 @@ body{
     }
 
     .select-selected {
-        //border-bottom: 1px solid var(--color-text-secondary);
-        background-color: var(--color-text-primary);
+        //border-bottom: 1px solid var(--color-white);
+        background-color: var(--color-blue-400);
 
         &::before {
             content: '';
@@ -332,7 +430,7 @@ body{
         width: 100%;
         z-index: 3;
         //border-radius: px-to-rem(20);
-        background-color: var(--color-text-primary);
+        background-color: var(--color-blue-400);
         overflow: hidden;
         transition: opacity 0.3s ease, visibility 0.3s ease;
 
@@ -347,8 +445,8 @@ body{
             transition: border 0.3s ease;
 
             &.same-as-selected {
-                border-color: var(--color-text-secondary);
-                //background-color: var(--color-button);
+                border-color: var(--color-white);
+                //background-color: var(--color-gold-100);
             }
         }
     }
@@ -360,7 +458,7 @@ body{
         display: var(--mobile);
         width: 100%;
         height: px-to-rem(42);
-        background-color: var(--color-button);
+        background-color: var(--color-gold-100);
         will-change: transform;
 
         @include viewport-tablet-max {
@@ -370,8 +468,8 @@ body{
 
     //.select-items div:hover,
     .same-as-selected {
-        border-color: var(--color-text-secondary);
-        //background-color: var(--color-button);
+        border-color: var(--color-white);
+        //background-color: var(--color-gold-100);
     }
 }
 
@@ -389,70 +487,8 @@ body{
     }
 }
 
-.lines {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 0;
-    pointer-events: none;
-
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    height: 100%;
-    padding: 0 var(--wrap-lines);
-
-    overflow: hidden;
-
-    @at-root .banner & {
-        min-height: px-to-rem(560);
-    }
-
-    @at-root .blog .blog__bg & {
-        z-index: 1;
-    }
-
-    @at-root .banner-inner & {
-        z-index: 1;
-    }
-
-    @at-root .labeled & {
-        z-index: 3;
-    }
-
-    @at-root .recording__container & {
-        width: calc(100% + 2 * var(--wrap));
-        margin-left: calc(-1 * var(--wrap));
-    }
-
-    @at-root .consultation__container & {
-        width: calc(100% + 2 * var(--wrap));
-        margin-left: calc(-1 * var(--wrap));
-    }
-
-    //.lines-line 
-    &-line {
-        position: relative;
-        width: 1px;
-        height: 100%;
-        background-color: rgba(var(--color-text-secondary--rgb), 0.06);
-
-        //.lines-line__item 
-        &__item {
-            position: absolute;
-            top: 0;
-            left: 50%;
-
-            width: 3px;
-            height: px-to-rem(20);
-            border-radius: px-to-rem(10);
-            background-color: var(--color-button);
-
-           // transform: translate(-50%, 0);
-            opacity: 0;
-            transition: opacity 1s ease;
-        }
-    }
+._section-first {
+    margin-top: px-to-rem(var(--header));
 }
 
 .hover-table {
@@ -463,7 +499,7 @@ body{
     width: 100%;
     height: 100%;
     margin: 0 !important;
-    background-color: var(--color-button);
+    background-color: var(--color-gold-100);
 
     will-change: transform;
     overflow: hidden;
@@ -471,7 +507,7 @@ body{
     //.hover-table__content 
     &__content {
         display: flex;
-        color: var(--color-text-secondary);
+        color: var(--color-white);
 
         @include viewport-desktop {
             padding: px-to-rem(15) px-to-rem(40) px-to-rem(12);

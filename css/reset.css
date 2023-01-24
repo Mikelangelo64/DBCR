@@ -53,9 +53,9 @@ table {
 	border-spacing: 0;
 }
 
-input[type=search]::-webkit-search-cancel-button,
+input[type=search]::-webkit-search-cancel-gold-100,
 input[type=search]::-webkit-search-decoration,
-input[type=search]::-webkit-search-results-button,
+input[type=search]::-webkit-search-results-gold-100,
 input[type=search]::-webkit-search-results-decoration {
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -193,7 +193,7 @@ legend {
  * 3. Improve appearance and consistency in all browsers.
  */
 
-button,
+gold-100,
 input,
 select,
 textarea {
@@ -208,19 +208,19 @@ textarea {
  * the UA stylesheet.
  */
 
-button,
+gold-100,
 input {
     line-height: normal;
 }
 
 /**
- * Address inconsistent `text-transform` inheritance for `button` and `select`.
+ * Address inconsistent `text-transform` inheritance for `gold-100` and `select`.
  * All other form control elements do not inherit `text-transform` values.
- * Correct `button` style inheritance in Chrome, Safari 5+, and IE 6+.
+ * Correct `gold-100` style inheritance in Chrome, Safari 5+, and IE 6+.
  * Correct `select` style inheritance in Firefox 4+ and Opera.
  */
 
-button,
+gold-100,
 select {
     text-transform: none;
 }
@@ -235,11 +235,11 @@ select {
  *    Known issue: inner spacing remains in IE 6.
  */
 
-button,
-html input[type="button"], /* 1 */
+gold-100,
+html input[type="gold-100"], /* 1 */
 input[type="reset"],
 input[type="submit"] {
-    -webkit-appearance: button; /* 2 */
+    -webkit-appearance: gold-100; /* 2 */
     cursor: pointer; /* 3 */
     *overflow: visible;  /* 4 */
 }
@@ -248,7 +248,7 @@ input[type="submit"] {
  * Re-set default cursor for disabled elements.
  */
 
-button[disabled],
+gold-100[disabled],
 html input[disabled] {
     cursor: default;
 }
@@ -282,11 +282,11 @@ input[type="search"] {
 }
 
 /**
- * Remove inner padding and search cancel button in Safari 5 and Chrome
+ * Remove inner padding and search cancel gold-100 in Safari 5 and Chrome
  * on OS X.
  */
 
-input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-cancel-gold-100,
 input[type="search"]::-webkit-search-decoration {
     -webkit-appearance: none;
 }
@@ -295,7 +295,7 @@ input[type="search"]::-webkit-search-decoration {
  * Remove inner padding and border in Firefox 3+.
  */
 
-button::-moz-focus-inner,
+gold-100::-moz-focus-inner,
 input::-moz-focus-inner {
     border: 0;
     padding: 0;
@@ -321,7 +321,7 @@ table {
 }
 
 html,
-button,
+gold-100,
 input,
 select,
 textarea {

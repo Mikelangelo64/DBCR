@@ -5,6 +5,7 @@
 @import './heading.scss';
 @import './font-size.scss';
 @import './states.scss';
+@import './reset.scss';
 @import './device.scss';
 
 :root {
@@ -144,27 +145,17 @@ body{
         }
     }
 
-    @include non-mobile-hover {
-        &::before {
-            opacity: 1;
-            animation: animate-gradient 8s linear infinite;
-        }
-
-        span {
-            animation: animate-gradient 8s linear infinite;
-            background-size: 200%;
-        }
-    }
-
-    &:focus-visible {
-        &::before {
-            opacity: 1;
-            animation: animate-gradient 8s linear infinite;
-        }
-
-        span {
-            animation: animate-gradient 8s linear infinite;
-            background-size: 400%;
+    @include hover-focus-visible {
+        @include non-mobile-device {
+            &::before {
+                opacity: 1;
+                animation: animate-gradient 8s linear infinite;
+            }
+    
+            span {
+                animation: animate-gradient 8s linear infinite;
+                background-size: 200%;
+            }
         }
     }
 }

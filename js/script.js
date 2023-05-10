@@ -41,6 +41,19 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('html').classList.add('v-desktop');
   }
 
+  function stopAnimation(idAnimation) {
+    cancelAnimationFrame(idAnimation);
+  }
+
+  function lerp(current, target, ease, approximationLeft = 0.001) {
+    const val = current * (1 - ease) + target * ease;
+    const diff = Math.abs(target - val);
+    if (diff <= approximationLeft) {
+      return target;
+    }
+    return val;
+  }
+
   //normal vh
   let vh = window.innerHeight * 0.01;
   document.body.style.setProperty('--vh', `${vh}px`);
@@ -60,6 +73,13 @@ document.addEventListener('DOMContentLoaded', function () {
     '--header',
     `${headerHeight ? headerHeight.getBoundingClientRect().height : 100}px`
   );
+
+  //blog-section items count
+  // const blogItems = document.querySelectorAll('.blog-section-list__item');
+  // document.body.style.setProperty(
+  //   '--blog-items-count',
+  //   `${document.body.clientWidth > 900 ? blogItems.length + 1 : 0}`
+  // );
 
   // menu global open
   const doWhenMenuOpen = () => {
@@ -331,10 +351,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   //FAQ
   const faqBtns = document.querySelectorAll('.faq-list__summary');
-  const faqSVG = document.querySelectorAll('.faq-list__mark svg path');
   const faqDetails = document.querySelectorAll('.faq-list__details');
   const animations = [];
-  const animationsSVG = [];
 
   const makeTimeline = (item) => {
     const timelineFaq = gsap.timeline({
@@ -345,26 +363,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return timelineFaq;
   };
 
-  const makeTimelineSVG = (item) => {
-    const timelineFaq = gsap.timeline({
-      defaults: { duration: 0.15 },
-    });
-    timelineFaq
-      .to(item, { d: 'path("M8 1.5 L8 8.5 L8 1.5")' })
-      .to(item, { d: 'path("M15 8 L8 1.5 L1 8")' }, '>0.15');
-
-    return timelineFaq;
-  };
-
-  if (Array.from(faqSVG).length !== 0) {
-    Array.from(faqSVG).forEach((item) => {
-      const itemAnimation = makeTimelineSVG(item);
-      itemAnimation.pause();
-      animationsSVG.push(itemAnimation);
-    });
-  }
-
-  if (Array.from(faqDetails).length !== 0) {
+  if (faqDetails.length !== 0) {
     Array.from(faqDetails).forEach((item) => {
       const itemAnimation = makeTimeline(item);
       itemAnimation.pause();
@@ -372,37 +371,115 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  faqBtns.forEach((item, index) => {
-    item.addEventListener('click', (evt) => {
-      evt.preventDefault();
-      const parent = item.parentElement.parentElement;
+  if (faqBtns.length !== 0) {
+    faqBtns.forEach((item, index) => {
+      item.addEventListener('click', (evt) => {
+        evt.preventDefault();
+        const parent = item.parentElement.parentElement;
+        if (!parent) {
+          return;
+        }
+
+        if (parent.classList.contains('_active')) {
+          animations[index].reverse();
+        } else {
+          animations[index].play();
+        }
+        parent.classList.toggle('_active');
+      });
+    });
+  }
+
+  //additional footer accordion
+  const accordionBtns = document.querySelectorAll('.footer-accordion__summary');
+  const accordionDetails = document.querySelectorAll(
+    '.footer-accordion__details'
+  );
+  const accordionAnimations = [];
+  const accordionButtonListeners = [];
+
+  const initAccordionAnimations = () => {
+    if (accordionDetails.length === 0) {
+      return;
+    }
+    accordionDetails.forEach((item) => {
+      const itemAnimation = makeTimeline(item);
+      itemAnimation.pause();
+      accordionAnimations.push(itemAnimation);
+    });
+  };
+
+  const accordionButtonHandler = (evt) => {
+    evt.preventDefault();
+    //console.log('listener!', evt.target);
+    const parent = evt.target.parentElement.parentElement.parentElement;
+    if (!parent) {
+      return;
+    }
+
+    const index = parent.dataset.index;
+    //console.log(index);
+
+    if (parent.classList.contains('_active')) {
+      accordionAnimations[index].reverse();
+    } else {
+      accordionAnimations[index].play();
+    }
+    parent.classList.toggle('_active');
+  };
+
+  const initAccordionButtonListeners = () => {
+    if (accordionBtns.length === 0) {
+      return;
+    }
+
+    accordionBtns.forEach((item) => {
+      item.addEventListener('click', accordionButtonHandler);
+    });
+  };
+
+  const resetAccordionAnimations = () => {
+    if (accordionBtns.length === 0 && accordionDetails.length === 0) {
+      return;
+    }
+
+    accordionDetails.forEach((item) => {
+      item.style = '';
+    });
+
+    accordionBtns.forEach((item, index) => {
+      const parent = item.parentElement.parentElement.parentElement;
       if (!parent) {
         return;
       }
+      //console.log(accordionAnimations);
+      accordionAnimations[index].kill();
+      //console.log(accordionButtonListeners);
+      item.removeEventListener('click', accordionButtonHandler);
 
-      if (Array.from(parent.classList).includes('_active', 0)) {
-        if (isSafari()) {
-          const svg = item.querySelector('.faq-list__mark svg');
-          if (svg) {
-            svg.classList.remove('_active');
-          }
-        } else {
-          animationsSVG[index].reverse();
-        }
-        animations[index].reverse();
-      } else {
-        if (isSafari()) {
-          const svg = item.querySelector('.faq-list__mark svg');
-          if (svg) {
-            svg.classList.add('_active');
-          }
-        } else {
-          animationsSVG[index].play();
-        }
-        animations[index].play();
-      }
-      parent.classList.toggle('_active');
+      parent.classList.remove('_active');
     });
+
+    accordionAnimations.splice(0, accordionAnimations.length);
+  };
+
+  const footerAccordionBreakpoint = '(max-width: 899px)';
+  const footerAccrdionBreakpointList = window.matchMedia(
+    footerAccordionBreakpoint
+  );
+
+  if (document.body.clientWidth < 900) {
+    initAccordionAnimations();
+    initAccordionButtonListeners();
+  }
+
+  footerAccrdionBreakpointList.addEventListener('change', (evt) => {
+    if (evt.matches) {
+      initAccordionAnimations();
+      initAccordionButtonListeners();
+    } else {
+      resetAccordionAnimations();
+    }
   });
 
   //popup
@@ -514,254 +591,168 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  //comments hardcode
-  const stars = document.querySelectorAll('.ec-rating-stars span');
-
-  const makeActiveStars = (arr, activeIndex) => {
-    arr.forEach((item, index) => {
-      if (activeIndex >= index) {
-        item.classList.add('active');
-      } else {
-        item.classList.remove('active');
-      }
-    });
+  //price carKey animation
+  const priceSection = document.querySelector('.price');
+  const progressPrice = {
+    currentX: 0,
+    targetX: 0,
+    currentY: 0,
+    targetY: 0,
   };
+  let priceImg;
+  let idAnimationPrice = null;
 
-  Array.from(stars).forEach((item, index, arr) => {
-    item.addEventListener('click', () => {
-      makeActiveStars(arr, index);
-    });
-  });
-
-  //custom-form-select
-
-  //animationFrame select-pointer
-  let selectPointerAnimationId;
-  const selectProgress = {
-    current: 0,
-    target: 0,
-  };
-
-  const selectPointerAnimate = (selectPointer, y) => {
-    if (!selectPointer) {
+  const priceImgMove = (targetX, targetY) => {
+    if (!priceImg || !priceSection) {
       return;
     }
     if (isMobile.any()) {
-      //console.log('mobile');
-      selectPointer.style.display = 'none';
+      priceImg.style.transform = '';
       return;
     }
+    const imgWidth = priceImg.getBoundingClientRect().width;
+    const imgHeight = priceImg.getBoundingClientRect().height;
 
-    selectProgress.target = y;
-    //selectProgress.current = selectProgress.target;
-    selectProgress.current = lerp(
-      selectProgress.current,
-      selectProgress.target,
+    progressPrice.targetX = targetX;
+    progressPrice.targetY = targetY;
+
+    progressPrice.currentX = lerp(
+      progressPrice.currentX,
+      progressPrice.targetX,
       0.15,
-      0.001
+      0.01
     );
-    selectPointer.style.transform = `translateY(${selectProgress.current}px)`;
 
-    if (selectProgress.current === selectProgress.target) {
-      cancelAnimationFrame(selectPointerAnimationId);
+    progressPrice.currentY = lerp(
+      progressPrice.currentY,
+      progressPrice.targetY,
+      0.15,
+      0.01
+    );
+
+    priceImg.style.transform = `translate3d(${-progressPrice.currentX * 10}%, ${
+      -progressPrice.currentY * 10
+    }%, 0)`;
+
+    if (
+      priceImg.currentX === priceImg.targetX &&
+      priceImg.currentY === priceImg.targetY
+    ) {
+      stopAnimation(idAnimationPrice);
     } else {
-      selectPointerAnimate(selectPointer, y);
+      priceImgMove(progressPrice.targetX, progressPrice.targetY);
     }
   };
 
-  const selects = document.querySelectorAll('.custom-form-select');
-  const selectsLength = Array.from(selects).length;
+  if (priceSection) {
+    priceImg = priceSection.querySelector('.price__img__bg img');
 
-  Array.from(selects).forEach((select, index, selects) => {
-    const selectOriginal = select.querySelector('select');
-    const selectOriginalLength = selectOriginal.length;
-    //console.log(selectOriginal, selectOriginalLength);
-
-    /* For each element, create a new DIV that will act as the selected item: */
-    const selectedItem = document.createElement('DIV');
-    selectedItem.setAttribute('class', 'select-selected');
-    selectedItem.innerHTML =
-      selectOriginal.options[selectOriginal.selectedIndex].innerHTML;
-    select.appendChild(selectedItem);
-
-    /* For each element, create a new DIV that will contain the option list: */
-    const customOptionList = document.createElement('DIV');
-    customOptionList.setAttribute('class', 'select-items select-hide');
-
-    if (document.body.clientWidth >= 1200) {
-      const selectPointer = document.createElement('span');
-      selectPointer.setAttribute('class', 'select-pointer');
-      customOptionList.appendChild(selectPointer);
-
-      customOptionList.addEventListener('mousemove', (evt) => {
-        const rect = customOptionList.getBoundingClientRect();
-        const startY = rect.top;
-        const pointerCenter = selectPointer.getBoundingClientRect().height / 2;
-        const y = Math.min(
-          Math.max(evt.clientY - startY, pointerCenter),
-          rect.height - pointerCenter
-        );
-
-        const progress = y - pointerCenter;
-        //console.log(y);
-        selectPointerAnimationId = window.requestAnimationFrame(() =>
-          selectPointerAnimate(selectPointer, progress)
-        );
-      });
-    }
-
-    Array.from(selectOriginal).forEach((option, optionsIndex) => {
-      /* For each option in the original select element,
-    create a new DIV that will act as an option item: */
-      const customOption = document.createElement('DIV');
-      customOption.innerHTML = selectOriginal.options[optionsIndex].innerHTML;
-      customOption.addEventListener('click', function (e) {
-        /* When an item is clicked, update the original select box,
-        and the selected item: */
-        const select = this.parentNode.parentNode.querySelector('select');
-        const selectLength = select.length;
-        const customSelectedItem = this.parentNode.previousSibling;
-
-        Array.from(select).forEach(
-          (optionChange, indexOptionChange, selectArr) => {
-            if (selectArr[indexOptionChange].innerHTML === this.innerHTML) {
-              selectArr.selectedIndex = indexOptionChange;
-              customSelectedItem.innerHTML = this.innerHTML;
-
-              const activeOptions =
-                this.parentNode.querySelectorAll('.same-as-selected');
-              Array.from(activeOptions).forEach((activeOption) => {
-                activeOption.removeAttribute('class');
-              });
-
-              this.setAttribute('class', 'same-as-selected');
-            }
-          }
-        );
-
-        customSelectedItem.click();
-      });
-      customOptionList.appendChild(customOption);
-    });
-
-    select.appendChild(customOptionList);
-    selectedItem.addEventListener('click', function (e) {
-      /* When the select box is clicked, close any other select boxes,
-    and open/close the current select box: */
-      e.stopPropagation();
-      closeAllSelect(this);
-      this.nextSibling.classList.toggle('select-hide');
-      this.classList.toggle('select-arrow-active');
-    });
-  });
-
-  function closeAllSelect(element) {
-    /* A function that will close all select boxes in the document,
-  except the current select box: */
-    const arrNo = [];
-    const selectItems = document.querySelectorAll('.select-items');
-    const selectSelecteds = document.querySelectorAll('.select-selected');
-
-    Array.from(selectSelecteds).forEach((selected, index) => {
-      if (element === selected) {
-        arrNo.push(index);
-      } else {
-        selected.classList.remove('selected-arrow-active');
+    priceSection.addEventListener('mousemove', (evt) => {
+      if (!priceImg || isMobile.any()) {
+        return;
       }
-    });
+      const rect = priceSection.getBoundingClientRect();
+      const startY = rect.top;
+      const startX = rect.left;
 
-    Array.from(selectItems).forEach((item, index) => {
-      if (arrNo.indexOf(index)) {
-        item.classList.add('select-hide');
-      }
+      const y =
+        Math.min(Math.max(evt.clientY - startY, 0), rect.height) /
+        (rect.height * 2);
+      const x =
+        Math.min(Math.max(evt.clientX - startX, 0), rect.width) /
+        (rect.width * 2);
+
+      idAnimationPrice = window.requestAnimationFrame(() => {
+        priceImgMove(x, y);
+      });
     });
   }
 
   //make table hover effect
-  const tableWrappers = document.querySelectorAll('[data-line-effect]');
-  let isTableEffectFinished = true;
-  tableWrappers.length && !isMobile.any() ? tableEffect() : null;
+  // const tableWrappers = document.querySelectorAll('[data-line-effect]');
+  // let isTableEffectFinished = true;
+  // tableWrappers.length && !isMobile.any() ? tableEffect() : null;
 
-  function tableEffect() {
-    tableWrappers.forEach((tableWrapper) => {
-      const tableRows = tableWrapper.querySelectorAll(
-        '.price-list__row:not(._header)'
-      );
+  // function tableEffect() {
+  //   tableWrappers.forEach((tableWrapper) => {
+  //     const tableRows = tableWrapper.querySelectorAll(
+  //       '.price-list__row:not(._header)'
+  //     );
 
-      const effectSpeed = tableWrapper.dataset.lineEffect
-        ? tableWrapper.dataset.lineEffect
-        : 200;
+  //     const effectSpeed = tableWrapper.dataset.lineEffect
+  //       ? tableWrapper.dataset.lineEffect
+  //       : 200;
 
-      tableRows.length ? tableEffectItem(tableRows, effectSpeed) : null;
-    });
+  //     tableRows.length ? tableEffectItem(tableRows, effectSpeed) : null;
+  //   });
 
-    function tableEffectItem(tableRows, effectSpeed) {
-      const effectTransition = `transition: transform ${effectSpeed}ms ease;`;
-      const effectHover = `transform: translate3d(0px, 0%, 0px);`;
-      const effectTop = `transform: translate3d(0px, -105%, 0px);`;
-      const effectBottom = `transform: translate3d(0px, 105%, 0px);`;
+  //   function tableEffectItem(tableRows, effectSpeed) {
+  //     const effectTransition = `transition: transform ${effectSpeed}ms ease;`;
+  //     const effectHover = `transform: translate3d(0px, 0%, 0px);`;
+  //     const effectTop = `transform: translate3d(0px, -105%, 0px);`;
+  //     const effectBottom = `transform: translate3d(0px, 105%, 0px);`;
 
-      tableRows.forEach((tableRow) => {
-        const innerContent = tableRow.innerHTML;
-        tableRow.insertAdjacentHTML(
-          'beforeend',
-          `
-        <div style="transform: translate3d(0px, 105%, 0px);" class="hover-table">
-            <div style="transform: translate3d(0px, -105%, 0px);" class="hover-table__content">
-                ${innerContent}
-            </div>
-        </div>
-        `
-        );
+  //     tableRows.forEach((tableRow) => {
+  //       const innerContent = tableRow.innerHTML;
+  //       tableRow.insertAdjacentHTML(
+  //         'beforeend',
+  //         `
+  //       <div style="transform: translate3d(0px, 105%, 0px);" class="hover-table">
+  //           <div style="transform: translate3d(0px, -105%, 0px);" class="hover-table__content">
+  //               ${innerContent}
+  //           </div>
+  //       </div>
+  //       `
+  //       );
 
-        tableRow.onmouseenter = tableRow.onmouseleave = tableRowActions;
-      });
+  //       tableRow.onmouseenter = tableRow.onmouseleave = tableRowActions;
+  //     });
 
-      function tableRowActions(e) {
-        const tableRow = e.target;
-        const tableRowItem = tableRow.querySelector('.hover-table');
-        const tableRowContent = tableRow.querySelector('.hover-table__content');
+  //     function tableRowActions(e) {
+  //       const tableRow = e.target;
+  //       const tableRowItem = tableRow.querySelector('.hover-table');
+  //       const tableRowContent = tableRow.querySelector('.hover-table__content');
 
-        const tableRowHeight = tableRow.offsetHeight / 2;
-        const tableRowPos =
-          e.pageY - (tableRow.getBoundingClientRect().top + scrollY);
+  //       const tableRowHeight = tableRow.offsetHeight / 2;
+  //       const tableRowPos =
+  //         e.pageY - (tableRow.getBoundingClientRect().top + scrollY);
 
-        if (!isTableEffectFinished) {
-          return;
-        }
+  //       if (!isTableEffectFinished) {
+  //         return;
+  //       }
 
-        if (e.type === 'mouseenter') {
-          isTableEffectFinished = false;
-          tableRowItem.style.cssText =
-            tableRowPos > tableRowHeight ? effectBottom : effectTop;
-          tableRowContent.style.cssText =
-            tableRowPos > tableRowHeight ? effectTop : effectBottom;
+  //       if (e.type === 'mouseenter') {
+  //         isTableEffectFinished = false;
+  //         tableRowItem.style.cssText =
+  //           tableRowPos > tableRowHeight ? effectBottom : effectTop;
+  //         tableRowContent.style.cssText =
+  //           tableRowPos > tableRowHeight ? effectTop : effectBottom;
 
-          setTimeout(() => {
-            isTableEffectFinished = true;
+  //         setTimeout(() => {
+  //           isTableEffectFinished = true;
 
-            tableRowItem.style.cssText = effectHover + effectTransition;
-            tableRowContent.style.cssText = effectHover + effectTransition;
-          }, 5);
-        }
+  //           tableRowItem.style.cssText = effectHover + effectTransition;
+  //           tableRowContent.style.cssText = effectHover + effectTransition;
+  //         }, 5);
+  //       }
 
-        if (e.type === 'mouseleave') {
-          setTimeout(() => {
-            isTableEffectFinished = true;
+  //       if (e.type === 'mouseleave') {
+  //         setTimeout(() => {
+  //           isTableEffectFinished = true;
 
-            tableRowItem.style.cssText =
-              tableRowPos > tableRowHeight
-                ? effectBottom + effectTransition
-                : effectTop + effectTransition;
-            tableRowContent.style.cssText =
-              tableRowPos > tableRowHeight
-                ? effectTop + effectTransition
-                : effectBottom + effectTransition;
-          }, 2.5);
-        }
-      }
-    }
-  }
+  //           tableRowItem.style.cssText =
+  //             tableRowPos > tableRowHeight
+  //               ? effectBottom + effectTransition
+  //               : effectTop + effectTransition;
+  //           tableRowContent.style.cssText =
+  //             tableRowPos > tableRowHeight
+  //               ? effectTop + effectTransition
+  //               : effectBottom + effectTransition;
+  //         }, 2.5);
+  //       }
+  //     }
+  //   }
+  // }
 
   //swipers
   let swiperPractics = new Swiper('.practics-slider.swiper', {
